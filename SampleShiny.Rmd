@@ -124,10 +124,8 @@ library(DT)
 library(dplyr)
 
 
-DIG <- data.frame(
-  TRTMT = c(0, 0, 1, 1, 0, 1),
-  DEATH = c(1, 0, 0, 1, 1, 0)
-)
+DIG <- DIG.df
+
 
 
 ui <- fluidPage(
@@ -140,7 +138,7 @@ ui <- fluidPage(
 
 
 server <- function(input, output) {
-  # Create a summary table for the dataset
+  
   output$summaryTable <- DT::renderDataTable({
     DIG %>%
       group_by(TRTMT) %>%
