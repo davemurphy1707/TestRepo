@@ -9,6 +9,7 @@ runtime: shiny
 knitr::opts_chunk$set(echo = TRUE) 
 library(shiny)
 library(tidyverse)
+library(DT)
 ```
 
 ```{r}
@@ -110,6 +111,47 @@ server <- function(input, output, session) {
       theme_minimal()
   })
 }
+
+shinyApp(ui = ui, server = server)
+
+
+```
+
+```{r}
+
+library(shiny)
+library(DT)
+library(dplyr)
+
+
+DIG <- data.frame(
+  TRTMT = c(0, 0, 1, 1, 0, 1),
+  DEATH = c(1, 0, 0, 1, 1, 0)
+)
+
+
+ui <- fluidPage(
+  titlePanel("Summary Table"),
+  mainPanel(
+    # Output: DataTable to display summary
+    DT::dataTableOutput("summaryTable")
+  )
+)
+
+
+server <- function(input, output) {
+  # Create a summary table for the dataset
+  output$summaryTable <- DT::renderDataTable({
+    DIG %>%
+      group_by(TRTMT) %>%
+      summarise(
+        Total = n(),
+        Deaths = sum(DEATH, na.rm = TRUE),
+        DeathRate = round(mean(DEATH, na.rm = TRUE) * 100, 2)
+      )
+  })
+}
+
 
 shinyApp(ui = ui, server = server)
 
