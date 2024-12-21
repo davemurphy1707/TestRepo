@@ -34,6 +34,17 @@ dig.df <- dig.df %>% mutate(ID = as.factor(ID),
                             DEATHDAY = as.numeric(DEATHDAY)) %>%
   filter(!is.na(HYPERTEN)) %>%
   filter(!is.na(KLEVEL))#filter out na values of hyperten for Q 11
+
+## Insert your code here
+dig.df$TRTMT <- recode_factor(dig.df$TRTMT, "0" = "Placebo", "1" = "Treatment")
+dig.df$SEX <- recode_factor(dig.df$SEX, "1" = "Male", "2" = "Female")
+dig.df$HYPERTEN <- recode_factor(dig.df$HYPERTEN, "0" = "Has_not_had", "1" = "Has_had")
+dig.df$CVD <- recode_factor(dig.df$CVD,"0" = "Does not have cardiovascular disease", 
+                            "1" =  "Has cardiovasular disease")
+dig.df$WHF <- recode_factor(dig.df$WHF, "0" = "Negative", "1" = "Positive")
+dig.df$DIG <- recode_factor(dig.df$DIG, "0" = "Not Toxic", "1" = "Toxic")
+dig.df$HOSP <- recode_factor(dig.df$HOSP, "0" = "Not Hospitalised", "1" = "Hospitalised")
+dig.df$DEATH <- recode_factor(dig.df$DEATH, "0" = "Alive", "1" = "Dead")
 ```
 
 
@@ -51,7 +62,17 @@ ui <- fluidPage(
         inputId = "Age",
         label = "Select Age Range",
         min = 0, max = 100, value = c(20,50)
-      )
+      ),
+       selectInput(
+        inputId = "Treatment",
+        label = "Select the treatment option:",
+        choices = levels(dig.df$TRTMT) # Dynamically load SEX levels from the dataset
+      ),
+      selectInput(
+        inputId = "WHF",
+        label = "Does this patient have worsening Heart Failure? :",
+        choices = levels(dig.df$WHF) # Dynamically load SEX levels from the dataset
+      ),
     ),
     mainPanel(
       plotOutput("distPlot") # Placeholder for the scatter plot
@@ -63,6 +84,8 @@ server <- function(input, output, session) {
   output$distPlot <- renderPlot({
     dig.df %>% 
       filter(SEX == input$Sex) %>% 
+      filter(TRTMT == input$Treatment) %>% 
+        filter(WHF == input$WHF) %>% 
       filter(AGE >= input$Age[1] & AGE <= input$Age[2]) %>%
       ggplot(aes(x = AGE, y = HOSPDAYS, color = SEX)) +
       geom_point(alpha = 0.6, size = 3) +
