@@ -38,6 +38,40 @@ dig.df <- dig.df %>% mutate(ID = as.factor(ID),
 
 
 ```{r eruptions, echo=FALSE}
+ui <- fluidPage(
+  titlePanel("DIG Scatter Plot"),
+  sidebarLayout(
+    sidebarPanel(
+      selectInput(
+        inputId = "Sex",
+        label = "Select the Sex:",
+        choices = levels(dig.df$SEX) # Dynamically load SEX levels from the dataset
+      )
+    ),
+    mainPanel(
+      plotOutput("distPlot") # Placeholder for the scatter plot
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  output$distPlot <- renderPlot({
+    dig.df %>% 
+      filter(SEX == input$Sex) %>% 
+      ggplot(aes(x = AGE, y = HOSPDAYS, color = SEX)) +
+      geom_point(alpha = 0.6, size = 3) +
+      labs(
+        title = "Scatter Plot of Age and HOSPDAYS by Sex",
+        x = "Age",
+        y = "Hospital Days",
+        color = "Sex"
+      ) +
+      theme_minimal()
+  })
+}
+
+shinyApp(ui = ui, server = server)
+
 
 ```
 
