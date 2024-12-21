@@ -38,34 +38,7 @@ dig.df <- dig.df %>% mutate(ID = as.factor(ID),
 
 
 ```{r eruptions, echo=FALSE}
-ui <- fluidPage(
-  titlePanel("DIG"),
-  sidebarLayout(
-    sidebarPanel(
-      selectInput(inputId = "Treatment", label = "Select Treatment Type:",
-                  choices = c("Placebo", "Treatment"))
-    ),
-    mainPanel(
-      plotOutput("plot1")
-    )
-  )
-)
 
-server <- function(input, output, session) {
-  output$plot1 <- renderPlot({
-    dig.df %>% filter(TRTMT == input$Treatment) %>%
-    ggplot(mapping = aes(x = TRTMT, y = 100*(after_stat(count))
-  /sum(after_stat(count)), fill = TRTMT)) + 
-  geom_bar(colour = "black",alpha = 0.4) + 
-  labs( title = " Barplot of Treatment Type",
-        fill = "Treatment vs Placebo",
-        x = "Treatment vs Placebo",
-        y = "Percentage (%)") + 
-  scale_fill_manual(values = c("navyblue", "cyan"))})
-  
-}
-
-shinyApp(ui, server)
 ```
 
 ## Embedded Application
