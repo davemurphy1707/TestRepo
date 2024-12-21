@@ -6,7 +6,7 @@ runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE) 
 library(shiny)
 library(tidyverse)
 ```
@@ -23,7 +23,7 @@ dig.df <- dig.df %>% mutate(ID = as.factor(ID),
                             KLEVEL = as.numeric(KLEVEL),
                             CREAT = as.numeric(CREAT),
                             DIABP = as.numeric(DIABP),
-                            SYSBP = as.numeric(SYSBP),
+                            SYSBP = as.numeric(SYSBP), 
                             HYPERTEN = as.factor(HYPERTEN),
                             CVD = as.factor(CVD),
                             WHF = as.factor(WHF),
@@ -46,6 +46,11 @@ ui <- fluidPage(
         inputId = "Sex",
         label = "Select the Sex:",
         choices = levels(dig.df$SEX) # Dynamically load SEX levels from the dataset
+      ),
+      sliderInput(
+        inputId = "Age",
+        label = "Select Age Range",
+        min = 0, max = 100, value = c(20,50)
       )
     ),
     mainPanel(
@@ -58,6 +63,7 @@ server <- function(input, output, session) {
   output$distPlot <- renderPlot({
     dig.df %>% 
       filter(SEX == input$Sex) %>% 
+      filter(AGE >= input$Age[1] & AGE <= input$Age[2]) %>%
       ggplot(aes(x = AGE, y = HOSPDAYS, color = SEX)) +
       geom_point(alpha = 0.6, size = 3) +
       labs(
