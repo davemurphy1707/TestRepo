@@ -6,34 +6,148 @@ runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE) 
 library(shiny)
+library(tidyverse)
+library(DT)
 ```
 
-This R Markdown document is made interactive using Shiny. Unlike the more traditional workflow of creating static reports, you can now create documents that allow your readers to change the assumptions underlying your analysis and see the results immediately. 
+```{r}
+DIG.df <- read_csv("DIG.csv", show_col_types = FALSE)
+head(DIG.df)
+dig.df <- DIG.df %>% select(ID, TRTMT, AGE, SEX, BMI, KLEVEL, CREAT, DIABP, SYSBP, HYPERTEN, CVD, WHF, DIG, HOSP, HOSPDAYS, DEATH, DEATHDAY)
+dig.df <- dig.df %>% mutate(ID = as.factor(ID), 
+                            TRTMT = as.factor(TRTMT),
+                            AGE = as.numeric(AGE),
+                            SEX = as.factor(SEX),
+                            BMI = as.numeric(BMI),
+                            KLEVEL = as.numeric(KLEVEL),
+                            CREAT = as.numeric(CREAT),
+                            DIABP = as.numeric(DIABP),
+                            SYSBP = as.numeric(SYSBP), 
+                            HYPERTEN = as.factor(HYPERTEN),
+                            CVD = as.factor(CVD),
+                            WHF = as.factor(WHF),
+                            DIG = as.factor(DIG),
+                            HOSP = as.factor(HOSP),
+                            HOSPDAYS = as.numeric(HOSPDAYS),
+                            DEATH = as.factor(DEATH),
+                            DEATHDAY = as.numeric(DEATHDAY)) %>%
+  filter(!is.na(HYPERTEN)) %>%
+  filter(!is.na(KLEVEL))#filter out na values of hyperten for Q 11
 
-To learn more, see [Interactive Documents](http://rmarkdown.rstudio.com/authoring_shiny.html).
+## Insert your code here
+dig.df$TRTMT <- recode_factor(dig.df$TRTMT, "0" = "Placebo", "1" = "Treatment")
+dig.df$SEX <- recode_factor(dig.df$SEX, "1" = "Male", "2" = "Female")
+dig.df$HYPERTEN <- recode_factor(dig.df$HYPERTEN, "0" = "Has_not_had", "1" = "Has_had")
+dig.df$CVD <- recode_factor(dig.df$CVD,"0" = "Does not have cardiovascular disease", 
+                            "1" =  "Has cardiovasular disease")
+dig.df$WHF <- recode_factor(dig.df$WHF, "0" = "Negative", "1" = "Positive")
+dig.df$DIG <- recode_factor(dig.df$DIG, "0" = "Not Toxic", "1" = "Toxic")
+dig.df$HOSP <- recode_factor(dig.df$HOSP, "0" = "Not Hospitalised", "1" = "Hospitalised")
+dig.df$DEATH <- recode_factor(dig.df$DEATH, "0" = "Alive", "1" = "Dead")
+```
 
-## Inputs and Outputs
 
-You can embed Shiny inputs and outputs in your document. Outputs are automatically updated whenever inputs change.  This demonstrates how a standard R plot can be made interactive by wrapping it in the Shiny `renderPlot` function. The `selectInput` and `sliderInput` functions create the input widgets used to drive the plot.
 
-```{r eruptions, echo=FALSE}
-inputPanel(
-  selectInput("n_breaks", label = "Number of bins:",
-              choices = c(10, 20, 35, 50), selected = 20),
-  
-  sliderInput("bw_adjust", label = "Bandwidth adjustment:",
-              min = 0.2, max = 2, value = 1, step = 0.2)
+```{r}
+
+library(shiny)
+library(tidyverse)
+library(DT)
+
+# Assuming you have the `dig.df` dataset already loaded and preprocessed.
+
+ui <- fluidPage(
+  titlePanel("DIG Data Analysis"),
+  sidebarLayout(
+    sidebarPanel(
+      selectInput(
+        inputId = "Sex",
+        label = "Select the Sex:",
+        choices = levels(dig.df$SEX) # Dynamically load SEX levels from the dataset
+      ),
+      sliderInput(
+        inputId = "Age",
+        label = "Select Age Range",
+        min = 0, max = 100, value = c(20,50)
+      ),
+      sliderInput(
+        inputId = "BMI",
+        label = "Select BMI Value",
+        min = 14, max = 65, value = c(20,50)
+      ),
+      selectInput(
+        inputId = "Treatment",
+        label = "Select the treatment option:",
+        choices = levels(dig.df$TRTMT) 
+      ),
+      selectInput(
+        inputId = "Hypertension",
+        label = "Does the patient have hypertension?:",
+        choices = levels(dig.df$HYPERTEN) 
+      ),
+      selectInput(
+        inputId = "WHF",
+        label = "Does this patient have worsening Heart Failure?:",
+        choices = levels(dig.df$WHF) 
+      )
+    ),
+    mainPanel(
+      tabsetPanel(
+        tabPanel("Scatter Plot", plotOutput("distPlot")),
+        tabPanel("Outcomes", 
+                 fluidRow(
+                   column(6, DT::dataTableOutput("summaryTable")),
+                   column(6, plotOutput("barGraph"))
+                 )
+        )
+      )
+    )
+  )
 )
 
-renderPlot({
-  hist(faithful$eruptions, probability = TRUE, breaks = as.numeric(input$n_breaks),
-       xlab = "Duration (minutes)", main = "Geyser eruption duration")
+server <- function(input, output, session) {
   
-  dens <- density(faithful$eruptions, adjust = input$bw_adjust)
-  lines(dens, col = "blue")
-})
+  # Render Scatter Plot without any filtering (for testing)
+  output$distPlot <- renderPlot({
+    ggplot(dig.df, aes(x = AGE, y = HOSPDAYS, color = SEX)) +
+      geom_point(alpha = 0.6, size = 3) +
+      labs(
+        title = "Scatter Plot of Age and HOSPDAYS by Sex",
+        x = "Age",
+        y = "Hospital Days",
+        color = "Sex"
+      ) +
+      theme_minimal()
+  })
+  
+  # Render Summary Table
+  output$summaryTable <- DT::renderDataTable({
+    dig.df %>%
+      group_by(TRTMT) %>%
+      summarise(
+        Total = n(),
+        Deaths = sum(DEATH, na.rm = TRUE),
+        DeathRate = round(mean(DEATH, na.rm = TRUE) * 100, 2)
+      )
+  })
+  
+  # Render Bar Graph
+  output$barGraph <- renderPlot({
+    ggplot(dig.df, aes(x = TRTMT, fill = as.factor(DEATH))) + 
+      geom_bar(position = "dodge") +  # Position bars side by side
+      labs(title = "Bar Graph of Deaths by Treatment",
+           x = "Treatment Group",
+           y = "Count of Deaths",
+           fill = "Death Status") +
+      theme_minimal()
+  })
+}
+
+shinyApp(ui = ui, server = server)
+
+
 ```
 
 ## Embedded Application
