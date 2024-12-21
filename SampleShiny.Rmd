@@ -12,16 +12,56 @@ library(tidyverse)
 ```
 
 ```{r}
-dig.df <- read
+DIG.df <- read_csv("DIG.csv", show_col_types = FALSE)
+head(DIG.df)
+dig.df <- DIG.df %>% select(ID, TRTMT, AGE, SEX, BMI, KLEVEL, CREAT, DIABP, SYSBP, HYPERTEN, CVD, WHF, DIG, HOSP, HOSPDAYS, DEATH, DEATHDAY)
+dig.df <- dig.df %>% mutate(ID = as.factor(ID), 
+                            TRTMT = as.factor(TRTMT),
+                            AGE = as.numeric(AGE),
+                            SEX = as.factor(SEX),
+                            BMI = as.numeric(BMI),
+                            KLEVEL = as.numeric(KLEVEL),
+                            CREAT = as.numeric(CREAT),
+                            DIABP = as.numeric(DIABP),
+                            SYSBP = as.numeric(SYSBP),
+                            HYPERTEN = as.factor(HYPERTEN),
+                            CVD = as.factor(CVD),
+                            WHF = as.factor(WHF),
+                            DIG = as.factor(DIG),
+                            HOSP = as.factor(HOSP),
+                            HOSPDAYS = as.numeric(HOSPDAYS),
+                            DEATH = as.factor(DEATH),
+                            DEATHDAY = as.numeric(DEATHDAY)) %>%
+  filter(!is.na(HYPERTEN)) %>%
+  filter(!is.na(KLEVEL))#filter out na values of hyperten for Q 11
 ```
 
 
 ```{r eruptions, echo=FALSE}
 ui <- fluidPage(
-  titlePanel("DIG")
+  titlePanel("DIG"),
+  sidebarLayout(
+    sidebarPanel(
+      selectInput(inputId = "Treatment", label = "Select Treatment Type:",
+                  choices = c("Placebo", "Treatment"))
+    ),
+    mainPanel(
+      plotOutput("plot1")
+    )
+  )
 )
 
 server <- function(input, output, session) {
+  output$plot1 <- renderPlot({
+    dig.df %>% filter(TRTMT == input$Treatment) %>%
+    ggplot(mapping = aes(x = TRTMT, y = 100*(after_stat(count))
+  /sum(after_stat(count)), fill = TRTMT)) + 
+  geom_bar(colour = "black",alpha = 0.4) + 
+  labs( title = " Barplot of Treatment Type",
+        fill = "Treatment vs Placebo",
+        x = "Treatment vs Placebo",
+        y = "Percentage (%)") + 
+  scale_fill_manual(values = c("navyblue", "cyan"))})
   
 }
 
