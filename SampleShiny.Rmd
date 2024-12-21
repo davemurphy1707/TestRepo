@@ -63,15 +63,25 @@ ui <- fluidPage(
         label = "Select Age Range",
         min = 0, max = 100, value = c(20,50)
       ),
+       sliderInput(
+        inputId = "BMI",
+        label = "Select BMI Value",
+        min = 14, max = 65, value = c(20,50)
+      ),
        selectInput(
         inputId = "Treatment",
         label = "Select the treatment option:",
-        choices = levels(dig.df$TRTMT) # Dynamically load SEX levels from the dataset
+        choices = levels(dig.df$TRTMT) 
+      ),
+       selectInput(
+        inputId = "Hypertension",
+        label = "Does the patient have hypertension? :",
+        choices = levels(dig.df$HYPERTEN) 
       ),
       selectInput(
         inputId = "WHF",
         label = "Does this patient have worsening Heart Failure? :",
-        choices = levels(dig.df$WHF) # Dynamically load SEX levels from the dataset
+        choices = levels(dig.df$WHF) 
       ),
     ),
     mainPanel(
@@ -85,9 +95,11 @@ server <- function(input, output, session) {
     dig.df %>% 
       filter(SEX == input$Sex) %>% 
       filter(TRTMT == input$Treatment) %>% 
-        filter(WHF == input$WHF) %>% 
+      filter(WHF == input$WHF) %>% 
+      filter(HYPERTEN == input$Hypertension) %>% 
       filter(AGE >= input$Age[1] & AGE <= input$Age[2]) %>%
-      ggplot(aes(x = AGE, y = HOSPDAYS, color = SEX)) +
+       filter(BMI >= input$BMI[1] & BMI <= input$BMI[2]) %>%
+      ggplot(aes(x = AGE, y = HOSPDAYS, color = "Sex")) +
       geom_point(alpha = 0.6, size = 3) +
       labs(
         title = "Scatter Plot of Age and HOSPDAYS by Sex",
