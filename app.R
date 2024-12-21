@@ -42,11 +42,11 @@ dig.df$HOSP <- recode_factor(dig.df$HOSP, "0" = "Not Hospitalised", "1" = "Hospi
 dig.df$DEATH <- recode_factor(dig.df$DEATH, "0" = "Alive", "1" = "Dead")
 
 library(shiny)
+library(shinydashboard)
 
-ui <- fluidPage(
-  titlePanel("DIG Scatter Plot"),
-  sidebarLayout(
-    sidebarPanel(
+ui <- dashboardPage(
+  dashboardHeader(title = "DIG Scatter Plot"),
+  dashboardSidebar(
       selectInput(
         inputId = "Sex",
         label = "Select the Sex:",
@@ -75,14 +75,14 @@ ui <- fluidPage(
       selectInput(
         inputId = "WHF",
         label = "Does this patient have worsening Heart Failure? :",
-        choices = levels(dig.df$WHF) 
+        choices = levels(dig.df$WHF)
+        ) 
       ),
-    ),
-    mainPanel(
+  dashboardBody(
       plotOutput("distPlot") # Placeholder for the scatter plot
     )
   )
-)
+
 
 server <- function(input, output, session) {
   output$distPlot <- renderPlot({
