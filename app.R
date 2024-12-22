@@ -47,6 +47,26 @@ library(shinydashboard)
 ui <- dashboardPage(
   dashboardHeader(title = "DIG Scatter Plot"),
   dashboardSidebar(
+      sliderInput(
+        inputId = "Age",
+        label = "Select Age Range",
+        min = 0, max = 100, value = c(20,50)
+      ),
+      sliderInput(
+        inputId = "BMI",
+        label = "Select BMI Value",
+        min = 14, max = 65, value = c(20,50)
+      ),
+      sliderInput(
+        inputId = "Creat",
+        label = "Select Creat Level",
+        min = 0.05, max = 4, value = c(2,3)
+      ),
+      sliderInput(
+        inputId = "Klevel",
+        label = "Select K Level",
+        min = 4.0, max = 6.5, value = c(4.3,4.8)
+      ),
       selectInput(
         inputId = "Sex",
         label = "Select the Sex:",
@@ -66,23 +86,35 @@ ui <- dashboardPage(
         inputId = "WHF",
         label = "Does this patient have worsening Heart Failure? :",
         choices = levels(dig.df$WHF)
-        ),
-      sliderInput(
-          inputId = "Age",
-          label = "Select Age Range",
-          min = 0, max = 100, value = c(20,50)
-        ),
-      sliderInput(
-        inputId = "BMI",
-        label = "Select BMI Value",
-        min = 14, max = 65, value = c(20,50)
-      ), 
+        ) 
       ),
   dashboardBody(
-      plotOutput("plot1"), 
-      tableOutput("table1")
+    tabBox(
+      width = 12, id = "tabs",
+           tabPanel("Scatter Plot",
+                    fluidRow(
+                      box(
+                      width = 12, 
+                      title = "Scatter Plot",
+                      collapsible = TRUE, status = "warning", 
+                      solidHeader = TRUE,  
+                      plotOutput("plot1")
+                      )
+                      )),
+          tabPanel("Data",
+                   fluidRow(box(
+                    width = 12, 
+                    title = "Table",
+                    collapsible = TRUE, 
+                    status = "warning", 
+                    solidHeader = TRUE,     
+                    tableOutput("table1")))
+   
     )
   )
+  )
+  )
+
 
 
 server <- function(input, output) {
@@ -93,6 +125,7 @@ server <- function(input, output) {
       filter(WHF == input$WHF) %>% 
       filter(HYPERTEN == input$Hypertension) %>% 
       filter(AGE >= input$Age[1] & AGE <= input$Age[2]) %>%
+      filter(KLEVEL >= input$Klevel[1] & KLEVEL <= input$Klevel[2]) %>%
       filter(BMI >= input$BMI[1] & BMI <= input$BMI[2]) })
   
   output$plot1 <- renderPlot({ filtered_data() %>%
