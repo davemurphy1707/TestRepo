@@ -51,6 +51,7 @@ dig.df$HOSP <- recode_factor(dig.df$HOSP, "0" = "Not Hospitalised", "1" = "Hospi
 dig.df$DEATH <- recode_factor(dig.df$DEATH, "0" = "Alive", "1" = "Dead")
 
 library(shiny)
+library(plotly)
 library(shinydashboard)
 library(bslib)
 library(fresh)
@@ -111,7 +112,7 @@ ui <- dashboardPage(
                       title = "Scatter Plot",
                       collapsible = TRUE, status = "warning", 
                       solidHeader = TRUE,  
-                      plotOutput("plot1")
+                      plotlyOutput("plot1")
                       )
                       )),
           tabPanel("Data",
@@ -124,10 +125,46 @@ ui <- dashboardPage(
                     tableOutput("table1")))
    
     ),
-    tabPanel("Plot 2", plotOutput("plot2"))
+    tabPanel("Plot 2",
+             fluidRow(
+               box(
+                 width = 6, 
+                 title = "Plot 2",
+                 collapsible = TRUE, status = "primary", 
+                 solidHeader = TRUE,  
+                 plotOutput("plot2")
+               ),
+               box(
+                 width = 6, 
+                 title = "Plot 3",
+                 collapsible = TRUE, status = "primary", 
+                 solidHeader = TRUE,  
+                 plotOutput("plot3")
+               )
+             ),
+             fluidRow(
+               box(
+                 width = 6, 
+                 title = "Plot 4",
+                 collapsible = TRUE, status = "primary", 
+                 solidHeader = TRUE,  
+                 plotOutput("plot4")
+               ),
+                 box(
+                   width = 6, 
+                   title = "Plot 5",
+                   collapsible = TRUE, status = "primary", 
+                   solidHeader = TRUE,  
+                   plotOutput("plot5")
+                 )
+             )
   )
+    )
   )
-  )
+)
+
+  
+  
 
 
 
@@ -142,8 +179,8 @@ server <- function(input, output) {
       filter(KLEVEL >= input$Klevel[1] & KLEVEL <= input$Klevel[2]) %>%
       filter(BMI >= input$BMI[1] & BMI <= input$BMI[2]) })
   
-  output$plot1 <- renderPlot({ filtered_data() %>%
-      ggplot(aes(x = AGE, y = HOSPDAYS, color = SEX)) +
+  output$plot1 <- renderPlotly({
+      p <- ggplot(filtered_data(), aes(x = AGE, y = HOSPDAYS, color = SEX)) +
       geom_point(alpha = 0.6, size = 3) +
       labs(
         title = "Scatter Plot of Age and HOSPDAYS by Sex",
@@ -152,28 +189,41 @@ server <- function(input, output) {
         color = "SEX"
       ) +
       theme_minimal()
+      ggplotly(p)
   })
   
   output$table1 <- renderTable({
     filtered_data()
   })
   
-  output$plot2 <- renderPlotly({
-    # Create the ggplot object
-    mor_int <- ggplot(filtered_data(), aes(x = MONTH, y = mortalityrate, color = TRTMT, group = TRTMT)) +
-      geom_line(size = 1.2) +
-      geom_point(size = 2) +
-      labs(
-        x = "Time (Months)",
-        y = "Mortality Rate",
-        title = "Mortality Rate Over Time by Treatment Group",
-        color = "Treatment Group"
-      ) +
-      theme_minimal()
-    
-    # Apply ggplotly to make it interactive
-    ggplotly(mor_int)  # Correctly use ggplotly here
+  output$plot2 <- renderPlot({
+    ggplot(dig.df) + geom_mosaic(aes(x = product(TRTMT),fill = SEX)) +
+      scale_fill_manual(values = c("blue", "hotpink")) + 
+      labs(title = "Mosaic Plot of SEX vs TREATMENT",
+           x = "TREATMENT",
+           y = "SEX")
   })
+  output$plot3 <- renderPlot({
+  ggplot(dig.df) + geom_mosaic(aes(x = product(TRTMT),fill = CVD)) +
+    scale_fill_manual(values = c("red", "yellow")) + 
+    labs(title = "Mosaic Plot of CVD vs TREATMENT",
+         x = "TREATMENT",
+         y = "CVD") +theme_get() })
+  
+  output$plot4 <- renderPlot({
+  ggplot(dig.df) + geom_mosaic(aes(x = product(TRTMT),fill = DEATH)) + 
+    scale_fill_manual(values = c("#80cdc1","#8c5")) + 
+    labs(title = "Mosaic Plot of DEATH vs TREATMENT",
+         x = "Treatment",
+         y = "Death Status") +theme_cleveland() })
+  
+  output$plot5 <- renderPlot({
+    ggplot(dig.df) + geom_mosaic(aes(x = product(CVD),fill = DEATH)) +
+      theme_grey() +
+      scale_fill_manual(values = c("navyblue", "cyan")) + 
+      labs(title = "Mosaic Plot of DEATH vs CVD",
+           x = "CVD",
+           y = "Death Status") +theme_cleveland() })
 }
 
 shinyApp(ui = ui, server = server)
