@@ -79,29 +79,36 @@ ui <- dashboardPage(
         ) 
       ),
   dashboardBody(
-      plotOutput("distPlot") # Placeholder for the scatter plot
+      plotOutput("plot1"), 
+      tableOutput("table1")
     )
   )
 
 
-server <- function(input, output, session) {
-  output$distPlot <- renderPlot({
-    dig.df %>% 
+server <- function(input, output) {
+  filtered_data <- reactive({
+    filtered_data <- dig.df %>% 
       filter(SEX == input$Sex) %>% 
       filter(TRTMT == input$Treatment) %>% 
       filter(WHF == input$WHF) %>% 
       filter(HYPERTEN == input$Hypertension) %>% 
       filter(AGE >= input$Age[1] & AGE <= input$Age[2]) %>%
-      filter(BMI >= input$BMI[1] & BMI <= input$BMI[2]) %>%
-      ggplot(aes(x = AGE, y = HOSPDAYS, color = "Sex")) +
+      filter(BMI >= input$BMI[1] & BMI <= input$BMI[2]) })
+  
+  output$plot1 <- renderPlot({ filtered_data() %>%
+      ggplot(aes(x = AGE, y = HOSPDAYS, color = SEX)) +
       geom_point(alpha = 0.6, size = 3) +
       labs(
         title = "Scatter Plot of Age and HOSPDAYS by Sex",
         x = "Age",
         y = "Hospital Days",
-        color = "Sex"
+        color = "SEX"
       ) +
       theme_minimal()
+  })
+  
+  output$table1 <- renderTable({
+    filtered_data()
   })
 }
 
