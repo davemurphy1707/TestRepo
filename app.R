@@ -169,24 +169,26 @@ ui <- dashboardPage(
 
 
 server <- function(input, output) {
+  #make the data reactive
   filtered_data <- reactive({
     filtered_data <- dig.df %>% 
       filter(SEX == input$Sex) %>% 
       filter(TRTMT == input$Treatment) %>% 
       filter(WHF == input$WHF) %>% 
       filter(HYPERTEN == input$Hypertension) %>% 
+      #these are continuous variables
       filter(AGE >= input$Age[1] & AGE <= input$Age[2]) %>%
       filter(KLEVEL >= input$Klevel[1] & KLEVEL <= input$Klevel[2]) %>%
       filter(BMI >= input$BMI[1] & BMI <= input$BMI[2]) })
   
+  
   output$plot1 <- renderPlotly({
-      p <- ggplot(filtered_data(), aes(x = AGE, y = HOSPDAYS, color = SEX)) +
-      geom_point(alpha = 0.6, size = 3) +
+      p <- ggplot(filtered_data(), aes(x = AGE, y = HOSPDAYS)) +
+      geom_point(alpha = 0.8, size = 3, colour = "lightblue") +
       labs(
         title = "Scatter Plot of Age and HOSPDAYS by Sex",
         x = "Age",
         y = "Hospital Days",
-        color = "SEX"
       ) +
       theme_minimal()
       ggplotly(p)
