@@ -117,6 +117,7 @@ ui <- dashboardPage(
                       ),   
                       )),
           tabPanel("Data",
+                   verbatimTextOutput("myBlockText2"),
                    fluidRow(box(
                     width = 12, 
                     title = "Table",
@@ -126,7 +127,8 @@ ui <- dashboardPage(
                     tableOutput("table1")))
    
     ),
-    tabPanel("Plot 2",
+    tabPanel("Mosaic Plots",                
+             verbatimTextOutput("myBlockText3"),
              fluidRow(
                box(
                  width = 6, 
@@ -184,8 +186,20 @@ server <- function(input, output) {
   
   
   output$myBlockText <- renderPrint({
-    cat("This tab includes a scatter plot and a description.\n",
-        "Use the controls to customize the view.")
+    cat("This Scatterplot shows the relationship between the number of days spent
+        in the hospital and the age of the patient.\n",
+        "If a patient is admitted and they are in this study the idea is that they
+        can adjust the plot to match their baseline characteristics with other
+        participants to give them an idea of how long they will be in the hospital.
+        The plot could also be used to segment the study into cohorts easily.") })
+    
+    output$myBlockText2 <- renderPrint({
+      cat("Here is a table of all data points visible on the scatterplot. \n
+          This table updates depending on the conditions that you select.") })
+      
+      output$myBlockText3 <- renderPrint({
+        cat("Here is a table of all data points visible on the scatterplot. \n
+          This table updates depending on the conditions that you select.")
   })
   
   output$plot1 <- renderPlotly({
