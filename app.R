@@ -103,6 +103,7 @@ ui <- dashboardPage(
       ),
   dashboardBody(
     use_theme(my_theme),
+    verbatimTextOutput("myBlockText"),
     tabBox(
       width = 12, id = "tabs",
            tabPanel("Scatter Plot",
@@ -186,12 +187,18 @@ server <- function(input, output) {
       p <- ggplot(filtered_data(), aes(x = AGE, y = HOSPDAYS)) +
       geom_point(alpha = 0.8, size = 3, colour = "lightblue") +
       labs(
-        title = "Scatter Plot of Age and HOSPDAYS by Sex",
+        title = "Scatter Plot of Days Spent in Hospital vs Age of Patient",
         x = "Age",
         y = "Hospital Days",
       ) +
       theme_minimal()
-      ggplotly(p)
+      ggplotly(p),
+      output$myBlockText <- renderPrint({
+        cat("This histogram plots the number of days spent in hospital against the
+        age of the patient. In the drop down menu on the left the user can control
+        the baseline characteristics of the patient. The idea is that when a patient 
+        is admitted into hospital in this treatment they will be able to get a an idea
+        of how long they will spend in the hospital.")})
   })
   
   output$table1 <- renderTable({
