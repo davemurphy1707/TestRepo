@@ -33,7 +33,7 @@ dig.df <- dig.df %>% mutate(ID = as.factor(ID),
 ## Insert your code here
 dig.df$TRTMT <- recode_factor(dig.df$TRTMT, "0" = "Placebo", "1" = "Treatment")
 dig.df$SEX <- recode_factor(dig.df$SEX, "1" = "Male", "2" = "Female")
-dig.df$HYPERTEN <- recode_factor(dig.df$HYPERTEN, "0" = "Has_not_had", "1" = "Has_had")
+dig.df$HYPERTEN <- recode_factor(dig.df$HYPERTEN, "0" = "Has not had", "1" = "Has had")
 dig.df$CVD <- recode_factor(dig.df$CVD,"0" = "Does not have cardiovascular disease", 
                             "1" =  "Has cardiovasular disease")
 dig.df$WHF <- recode_factor(dig.df$WHF, "0" = "Negative", "1" = "Positive")
@@ -52,16 +52,6 @@ ui <- dashboardPage(
         label = "Select the Sex:",
         choices = levels(dig.df$SEX) # Dynamically load SEX levels from the dataset
       ),
-      sliderInput(
-        inputId = "Age",
-        label = "Select Age Range",
-        min = 0, max = 100, value = c(20,50)
-      ),
-      sliderInput(
-        inputId = "BMI",
-        label = "Select BMI Value",
-        min = 14, max = 65, value = c(20,50)
-      ),
       selectInput(
         inputId = "Treatment",
         label = "Select the treatment option:",
@@ -76,7 +66,17 @@ ui <- dashboardPage(
         inputId = "WHF",
         label = "Does this patient have worsening Heart Failure? :",
         choices = levels(dig.df$WHF)
-        ) 
+        ),
+      sliderInput(
+          inputId = "Age",
+          label = "Select Age Range",
+          min = 0, max = 100, value = c(20,50)
+        ),
+      sliderInput(
+        inputId = "BMI",
+        label = "Select BMI Value",
+        min = 14, max = 65, value = c(20,50)
+      ), 
       ),
   dashboardBody(
       plotOutput("plot1"), 
