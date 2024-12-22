@@ -103,10 +103,10 @@ ui <- dashboardPage(
       ),
   dashboardBody(
     use_theme(my_theme),
-    verbatimTextOutput("myBlockText"),
     tabBox(
       width = 12, id = "tabs",
            tabPanel("Scatter Plot",
+                    verbatimTextOutput("myBlockText"),
                     fluidRow(
                       box(
                       width = 12, 
@@ -114,7 +114,7 @@ ui <- dashboardPage(
                       collapsible = TRUE, status = "warning", 
                       solidHeader = TRUE,  
                       plotlyOutput("plot1")
-                      )
+                      ),   
                       )),
           tabPanel("Data",
                    fluidRow(box(
@@ -183,6 +183,11 @@ server <- function(input, output) {
       filter(BMI >= input$BMI[1] & BMI <= input$BMI[2]) })
   
   
+  output$myBlockText <- renderPrint({
+    cat("This tab includes a scatter plot and a description.\n",
+        "Use the controls to customize the view.")
+  })
+  
   output$plot1 <- renderPlotly({
       p <- ggplot(filtered_data(), aes(x = AGE, y = HOSPDAYS)) +
       geom_point(alpha = 0.8, size = 3, colour = "lightblue") +
@@ -192,13 +197,8 @@ server <- function(input, output) {
         y = "Hospital Days",
       ) +
       theme_minimal()
-      ggplotly(p),
-      output$myBlockText <- renderPrint({
-        cat("This histogram plots the number of days spent in hospital against the
-        age of the patient. In the drop down menu on the left the user can control
-        the baseline characteristics of the patient. The idea is that when a patient 
-        is admitted into hospital in this treatment they will be able to get a an idea
-        of how long they will spend in the hospital.")})
+      ggplotly(p)
+      
   })
   
   output$table1 <- renderTable({
