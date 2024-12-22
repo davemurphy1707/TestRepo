@@ -37,6 +37,8 @@ dig.df <- dig.df %>% mutate(ID = as.factor(ID),
   filter(!is.na(HYPERTEN)) %>%
   filter(!is.na(KLEVEL))#filter out na values of hyperten for Q 11
 
+dig.df <- mutate(dig.df, MONTH = round(DEATHDAY/30))
+
 ## Insert your code here
 dig.df$TRTMT <- recode_factor(dig.df$TRTMT, "0" = "Placebo", "1" = "Treatment")
 dig.df$SEX <- recode_factor(dig.df$SEX, "1" = "Male", "2" = "Female")
@@ -52,6 +54,7 @@ library(shiny)
 library(shinydashboard)
 library(bslib)
 library(fresh)
+library(ggmosaic)
 
 ui <- dashboardPage(
   dashboardHeader(title = "DIG Scatter Plot"),
@@ -120,7 +123,8 @@ ui <- dashboardPage(
                     solidHeader = TRUE,     
                     tableOutput("table1")))
    
-    )
+    ),
+    tabPanel("Plot 2", plotOutput("plot2"))
   )
   )
   )
@@ -152,6 +156,23 @@ server <- function(input, output) {
   
   output$table1 <- renderTable({
     filtered_data()
+  })
+  
+  output$plot2 <- renderPlotly({
+    # Create the ggplot object
+    mor_int <- ggplot(filtered_data(), aes(x = MONTH, y = mortalityrate, color = TRTMT, group = TRTMT)) +
+      geom_line(size = 1.2) +
+      geom_point(size = 2) +
+      labs(
+        x = "Time (Months)",
+        y = "Mortality Rate",
+        title = "Mortality Rate Over Time by Treatment Group",
+        color = "Treatment Group"
+      ) +
+      theme_minimal()
+    
+    # Apply ggplotly to make it interactive
+    ggplotly(mor_int)  # Correctly use ggplotly here
   })
 }
 
