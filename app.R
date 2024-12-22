@@ -7,6 +7,13 @@
 #    https://shiny.posit.co/
 #
 
+
+my_theme = create_theme(
+  adminlte_color(
+    light_blue = "#4898a8"
+  )
+)
+
 DIG.df <- read_csv("DIG.csv", show_col_types = FALSE)
 head(DIG.df)
 dig.df <- DIG.df %>% select(ID, TRTMT, AGE, SEX, BMI, KLEVEL, CREAT, DIABP, SYSBP, HYPERTEN, CVD, WHF, DIG, HOSP, HOSPDAYS, DEATH, DEATHDAY)
@@ -43,6 +50,8 @@ dig.df$DEATH <- recode_factor(dig.df$DEATH, "0" = "Alive", "1" = "Dead")
 
 library(shiny)
 library(shinydashboard)
+library(bslib)
+library(fresh)
 
 ui <- dashboardPage(
   dashboardHeader(title = "DIG Scatter Plot"),
@@ -89,6 +98,7 @@ ui <- dashboardPage(
         ) 
       ),
   dashboardBody(
+    use_theme(my_theme),
     tabBox(
       width = 12, id = "tabs",
            tabPanel("Scatter Plot",
