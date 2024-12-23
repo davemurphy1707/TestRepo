@@ -48,7 +48,7 @@ dig.df$HOSP <- recode_factor(dig.df$HOSP, "0" = "Not Hospitalised", "1" = "Hospi
 dig.df$DEATH <- recode_factor(dig.df$DEATH, "0" = "Alive", "1" = "Dead")
 ```
 
-
+gh-pages
 ```{r eruptions, echo=FALSE}
 ui <- fluidPage(
   titlePanel("DIG Scatter Plot"),
@@ -141,6 +141,84 @@ server <- function(input, output) {
   
   output$summaryTable <- DT::renderDataTable({
     DIG %>%
+
+
+```{r}
+
+library(shiny)
+library(tidyverse)
+library(DT)
+
+# Assuming you have the `dig.df` dataset already loaded and preprocessed.
+
+ui <- fluidPage(
+  titlePanel("DIG Data Analysis"),
+  sidebarLayout(
+    sidebarPanel(
+      selectInput(
+        inputId = "Sex",
+        label = "Select the Sex:",
+        choices = levels(dig.df$SEX) # Dynamically load SEX levels from the dataset
+      ),
+      sliderInput(
+        inputId = "Age",
+        label = "Select Age Range",
+        min = 0, max = 100, value = c(20,50)
+      ),
+      sliderInput(
+        inputId = "BMI",
+        label = "Select BMI Value",
+        min = 14, max = 65, value = c(20,50)
+      ),
+      selectInput(
+        inputId = "Treatment",
+        label = "Select the treatment option:",
+        choices = levels(dig.df$TRTMT) 
+      ),
+      selectInput(
+        inputId = "Hypertension",
+        label = "Does the patient have hypertension?:",
+        choices = levels(dig.df$HYPERTEN) 
+      ),
+      selectInput(
+        inputId = "WHF",
+        label = "Does this patient have worsening Heart Failure?:",
+        choices = levels(dig.df$WHF) 
+      )
+    ),
+    mainPanel(
+      tabsetPanel(
+        tabPanel("Scatter Plot", plotOutput("distPlot")),
+        tabPanel("Outcomes", 
+                 fluidRow(
+                   column(6, DT::dataTableOutput("summaryTable")),
+                   column(6, plotOutput("barGraph"))
+                 )
+        )
+      )
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  
+  # Render Scatter Plot without any filtering (for testing)
+  output$distPlot <- renderPlot({
+    ggplot(dig.df, aes(x = AGE, y = HOSPDAYS, color = SEX)) +
+      geom_point(alpha = 0.6, size = 3) +
+      labs(
+        title = "Scatter Plot of Age and HOSPDAYS by Sex",
+        x = "Age",
+        y = "Hospital Days",
+        color = "Sex"
+      ) +
+      theme_minimal()
+  })
+  
+  # Render Summary Table
+  output$summaryTable <- DT::renderDataTable({
+    dig.df %>%
+main
       group_by(TRTMT) %>%
       summarise(
         Total = n(),
@@ -148,9 +226,25 @@ server <- function(input, output) {
         DeathRate = round(mean(DEATH, na.rm = TRUE) * 100, 2)
       )
   })
+ gh-pages
 }
 
 
+
+  
+  # Render Bar Graph
+  output$barGraph <- renderPlot({
+    ggplot(dig.df, aes(x = TRTMT, fill = as.factor(DEATH))) + 
+      geom_bar(position = "dodge") +  # Position bars side by side
+      labs(title = "Bar Graph of Deaths by Treatment",
+           x = "Treatment Group",
+           y = "Count of Deaths",
+           fill = "Death Status") +
+      theme_minimal()
+  })
+}
+
+main
 shinyApp(ui = ui, server = server)
 
 
