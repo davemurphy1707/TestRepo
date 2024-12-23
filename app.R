@@ -191,7 +191,8 @@ server <- function(input, output) {
       filter(KLEVEL >= input$Klevel[1] & KLEVEL <= input$Klevel[2]) %>%
       filter(BMI >= input$BMI[1] & BMI <= input$BMI[2]) })
   
-  #block which gives a description of 
+  #block which gives a description of each tab, to be displayed on each 
+  #individual tab
   output$myBlockText <- renderPrint({
     cat("This Scatterplot shows the relationship between the number of days spent
         in the hospital and the age of the patient.\n",
@@ -209,7 +210,9 @@ server <- function(input, output) {
           This table updates depending on the conditions that you select.")
   })
   
+      #renderPlotly for an interactive plot
   output$plot1 <- renderPlotly({
+    #save the ggplot as an object
       p <- ggplot(filtered_data(), aes(x = AGE, y = HOSPDAYS)) +
       geom_point(alpha = 0.8, size = 3, colour = "lightblue") +
       labs(
@@ -218,10 +221,12 @@ server <- function(input, output) {
         y = "Hospital Days",
       ) +
       theme_minimal()
+      #turn the ggplot interactive
       ggplotly(p)
       
   })
   
+  #display the data so that the user selects who they see
   output$table1 <- renderTable({
     filtered_data()
   })
