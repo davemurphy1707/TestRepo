@@ -7,6 +7,14 @@
 #    https://shiny.posit.co/
 #
 
+library(shiny)
+library(plotly)
+library(shinydashboard)
+library(bslib)
+library(fresh)
+library(ggmosaic)
+library(readr)
+library(dplyr)
 
 my_theme = create_theme(
   adminlte_color(
@@ -50,12 +58,7 @@ dig.df$DIG <- recode_factor(dig.df$DIG, "0" = "Not Toxic", "1" = "Toxic")
 dig.df$HOSP <- recode_factor(dig.df$HOSP, "0" = "Not Hospitalised", "1" = "Hospitalised")
 dig.df$DEATH <- recode_factor(dig.df$DEATH, "0" = "Alive", "1" = "Dead")
 
-library(shiny)
-library(plotly)
-library(shinydashboard)
-library(bslib)
-library(fresh)
-library(ggmosaic)
+
 
 ui <- dashboardPage(
   dashboardHeader(title = "DIG Scatter Plot"),
