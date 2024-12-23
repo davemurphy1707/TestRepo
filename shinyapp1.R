@@ -3,8 +3,8 @@ library(shinydashboard)
 library(ggplot2)
 library(DT)
 
-DIG.DF <- read.csv("C:/Users/shyam/Downloads/DIG.csv")
-DIG <- DIG %>% filter(!is.na(AGE) & !is.na(DEATH))
+DIG.df <- read_csv("DIG.csv", show_col_types = FALSE)
+DIG <- DIG.df %>% filter(!is.na(AGE) & !is.na(DEATH))
 
 DIG$TRTMT <- factor(DIG$TRTMT, levels = c(0, 1), labels = c("Placebo", "Treatment"))
 DIG$SEX <- factor(DIG$SEX, levels = c(1, 2), labels = c("Male", "Female"))
