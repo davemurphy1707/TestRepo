@@ -206,8 +206,8 @@ server <- function(input, output) {
           This table updates depending on the conditions that you select.") })
       
       output$myBlockText3 <- renderPrint({
-        cat("Here is a table of all data points visible on the scatterplot. \n
-          This table updates depending on the conditions that you select.")
+        cat("Here are some mosaic plots displaying the baseline characteristics
+            of patients vs the treatment type they are on.")
   })
   
       #renderPlotly for an interactive plot
