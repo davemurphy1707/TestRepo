@@ -3,7 +3,7 @@ library(shinydashboard)
 library(ggplot2)
 library(DT)
 
-DIG.DF <- read.csv("C:/Users/shyam/Downloads/DIG.csv")
+DIG.DF <- read.csv("DIG.csv")
 DIG <- DIG %>% filter(!is.na(AGE) & !is.na(DEATH))
 
 DIG$TRTMT <- factor(DIG$TRTMT, levels = c(0, 1), labels = c("Placebo", "Treatment"))
