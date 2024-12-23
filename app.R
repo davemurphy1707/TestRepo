@@ -201,7 +201,8 @@ server <- function(input, output) {
         "If a patient is admitted and they are in this study the idea is that they
         can adjust the plot to match their baseline characteristics with other
         participants to give them an idea of how long they will be in the hospital.
-        The plot could also be used to segment the study into cohorts easily.") })
+        The plot could also be used to segment the study into cohorts for 
+        further analysis if necessary.") })
     
     output$myBlockText2 <- renderPrint({
       cat("Here is a table of all data points visible on the scatterplot. \n
