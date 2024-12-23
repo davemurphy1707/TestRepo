@@ -16,12 +16,14 @@ library(ggmosaic)
 library(readr)
 library(dplyr)
 
+#create a custom colour for the theme
 my_theme = create_theme(
   adminlte_color(
     light_blue = "#4898a8"
   )
 )
 
+#read in teh data and label appropriately
 DIG.df <- read_csv("DIG.csv", show_col_types = FALSE)
 head(DIG.df)
 dig.df <- DIG.df %>% select(ID, TRTMT, AGE, SEX, BMI, KLEVEL, CREAT, DIABP, SYSBP, HYPERTEN, CVD, WHF, DIG, HOSP, HOSPDAYS, DEATH, DEATHDAY)
@@ -59,7 +61,8 @@ dig.df$HOSP <- recode_factor(dig.df$HOSP, "0" = "Not Hospitalised", "1" = "Hospi
 dig.df$DEATH <- recode_factor(dig.df$DEATH, "0" = "Alive", "1" = "Dead")
 
 
-
+#the user interface component that allows the user to alter the variables
+#in the control panel
 ui <- dashboardPage(
   dashboardHeader(title = "DIG Scatter Plot"),
   dashboardSidebar(
@@ -104,6 +107,7 @@ ui <- dashboardPage(
         choices = levels(dig.df$WHF)
         ) 
       ),
+  #create the tabs and ids fro the plots, table and tabs
   dashboardBody(
     use_theme(my_theme),
     tabBox(
@@ -175,7 +179,7 @@ ui <- dashboardPage(
 
 
 server <- function(input, output) {
-  #make the data reactive
+  #make the data reactive to allow for user input
   filtered_data <- reactive({
     filtered_data <- dig.df %>% 
       filter(SEX == input$Sex) %>% 
@@ -187,7 +191,7 @@ server <- function(input, output) {
       filter(KLEVEL >= input$Klevel[1] & KLEVEL <= input$Klevel[2]) %>%
       filter(BMI >= input$BMI[1] & BMI <= input$BMI[2]) })
   
-  
+  #block which gives a description of 
   output$myBlockText <- renderPrint({
     cat("This Scatterplot shows the relationship between the number of days spent
         in the hospital and the age of the patient.\n",
