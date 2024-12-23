@@ -211,7 +211,7 @@ server <- function(input, output) {
       output$myBlockText3 <- renderPrint({
         cat("Here are some mosaic plots displaying the baseline characteristics
             of patients vs the treatment type they are on. \n
-            If there any irregularities in hte data set tehy can be visualised 
+            If there any irregularities in hte data set they can be visualised 
             here.")
   })
   
