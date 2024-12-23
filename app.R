@@ -15,6 +15,8 @@ library(fresh)
 library(ggmosaic)
 library(readr)
 library(dplyr)
+library(ggplot2)
+library(ggfortify)
 
 #create a custom colour for the theme
 my_theme = create_theme(
@@ -207,7 +209,9 @@ server <- function(input, output) {
       
       output$myBlockText3 <- renderPrint({
         cat("Here are some mosaic plots displaying the baseline characteristics
-            of patients vs the treatment type they are on.")
+            of patients vs the treatment type they are on. \n
+            If there any irregularities in hte data set tehy can be visualised 
+            here.")
   })
   
       #renderPlotly for an interactive plot
@@ -243,14 +247,14 @@ server <- function(input, output) {
     scale_fill_manual(values = c("red", "yellow")) + 
     labs(title = "Mosaic Plot of CVD vs TREATMENT",
          x = "TREATMENT",
-         y = "CVD") +theme_get() })
+         y = "CVD") +theme_minimal() })
   
   output$plot4 <- renderPlot({
   ggplot(dig.df) + geom_mosaic(aes(x = product(TRTMT),fill = DEATH)) + 
     scale_fill_manual(values = c("#80cdc1","#8c5")) + 
     labs(title = "Mosaic Plot of DEATH vs TREATMENT",
          x = "Treatment",
-         y = "Death Status") +theme_cleveland() })
+         y = "Death Status") +theme_minimal() })
   
   output$plot5 <- renderPlot({
     ggplot(dig.df) + geom_mosaic(aes(x = product(CVD),fill = DEATH)) +
@@ -258,7 +262,7 @@ server <- function(input, output) {
       scale_fill_manual(values = c("navyblue", "cyan")) + 
       labs(title = "Mosaic Plot of DEATH vs CVD",
            x = "CVD",
-           y = "Death Status") +theme_cleveland() })
+           y = "Death Status") +theme_minimal() })
 }
 
 shinyApp(ui = ui, server = server)
