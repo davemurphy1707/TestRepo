@@ -48,6 +48,99 @@ dig.df$HOSP <- recode_factor(dig.df$HOSP, "0" = "Not Hospitalised", "1" = "Hospi
 dig.df$DEATH <- recode_factor(dig.df$DEATH, "0" = "Alive", "1" = "Dead")
 ```
 
+gh-pages
+```{r eruptions, echo=FALSE}
+ui <- fluidPage(
+  titlePanel("DIG Scatter Plot"),
+  sidebarLayout(
+    sidebarPanel(
+      selectInput(
+        inputId = "Sex",
+        label = "Select the Sex:",
+        choices = levels(dig.df$SEX) # Dynamically load SEX levels from the dataset
+      ),
+      sliderInput(
+        inputId = "Age",
+        label = "Select Age Range",
+        min = 0, max = 100, value = c(20,50)
+      ),
+       sliderInput(
+        inputId = "BMI",
+        label = "Select BMI Value",
+        min = 14, max = 65, value = c(20,50)
+      ),
+       selectInput(
+        inputId = "Treatment",
+        label = "Select the treatment option:",
+        choices = levels(dig.df$TRTMT) 
+      ),
+       selectInput(
+        inputId = "Hypertension",
+        label = "Does the patient have hypertension? :",
+        choices = levels(dig.df$HYPERTEN) 
+      ),
+      selectInput(
+        inputId = "WHF",
+        label = "Does this patient have worsening Heart Failure? :",
+        choices = levels(dig.df$WHF) 
+      ),
+    ),
+    mainPanel(
+      plotOutput("distPlot") # Placeholder for the scatter plot
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  output$distPlot <- renderPlot({
+    dig.df %>% 
+      filter(SEX == input$Sex) %>% 
+      filter(TRTMT == input$Treatment) %>% 
+      filter(WHF == input$WHF) %>% 
+      filter(HYPERTEN == input$Hypertension) %>% 
+      filter(AGE >= input$Age[1] & AGE <= input$Age[2]) %>%
+       filter(BMI >= input$BMI[1] & BMI <= input$BMI[2]) %>%
+      ggplot(aes(x = AGE, y = HOSPDAYS, color = "Sex")) +
+      geom_point(alpha = 0.6, size = 3) +
+      labs(
+        title = "Scatter Plot of Age and HOSPDAYS by Sex",
+        x = "Age",
+        y = "Hospital Days",
+        color = "Sex"
+      ) +
+      theme_minimal()
+  })
+}
+
+shinyApp(ui = ui, server = server)
+
+
+```
+
+```{r}
+
+library(shiny)
+library(DT)
+library(dplyr)
+
+
+DIG <- DIG.df
+
+
+
+ui <- fluidPage(
+  titlePanel("Summary Table"),
+  mainPanel(
+    # Output: DataTable to display summary
+    DT::dataTableOutput("summaryTable")
+  )
+)
+
+
+server <- function(input, output) {
+  
+  output$summaryTable <- DT::renderDataTable({
+    DIG %>%
 
 
 ```{r}
@@ -125,6 +218,7 @@ server <- function(input, output, session) {
   # Render Summary Table
   output$summaryTable <- DT::renderDataTable({
     dig.df %>%
+main
       group_by(TRTMT) %>%
       summarise(
         Total = n(),
@@ -132,6 +226,11 @@ server <- function(input, output, session) {
         DeathRate = round(mean(DEATH, na.rm = TRUE) * 100, 2)
       )
   })
+ gh-pages
+}
+
+
+
   
   # Render Bar Graph
   output$barGraph <- renderPlot({
@@ -145,6 +244,7 @@ server <- function(input, output, session) {
   })
 }
 
+main
 shinyApp(ui = ui, server = server)
 
 
@@ -155,12 +255,30 @@ shinyApp(ui = ui, server = server)
 It's also possible to embed an entire Shiny application within an R Markdown document using the `shinyAppDir` function. This example embeds a Shiny application located in another directory:
 
 ```{r tabsets, echo=FALSE}
-shinyAppDir(
-  system.file("examples/06_tabsets", package = "shiny"),
-  options = list(
-    width = "100%", height = 550
-  )
-)
+server <- function(input, output, session) {
+  
+  filtered_data <- reactive({
+    dig.df %>% 
+      filter(SEX == input$Sex) %>% 
+      filter(TRTMT == input$Treatment) %>% 
+      filter(WHF == input$WHF) %>% 
+      filter(HYPERTEN == input$Hypertension) %>% 
+      filter(AGE >= input$Age[1] & AGE <= input$Age[2]) %>%
+      filter(BMI >= input$BMI[1] & BMI <= input$BMI[2]) })
+  
+  output$plot1 <- renderPlot({
+    filtered_data() %>% 
+      ggplot(aes(x = AGE, y = HOSPDAYS, color = SEX)) +
+      geom_point(alpha = 0.6, size = 3) +
+      labs(
+        title = "Scatter Plot of Age and HOSPDAYS by Sex",
+        x = "Age",
+        y = "Hospital Days",
+        color = "Sex"
+      ) +
+      theme_minimal()
+  }) 
+}
 ```
 
 Note the use of the `height` parameter to determine how much vertical space the embedded application should occupy.

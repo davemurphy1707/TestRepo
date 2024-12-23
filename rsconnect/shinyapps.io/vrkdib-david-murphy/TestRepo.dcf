@@ -1,0 +1,12 @@
+name: TestRepo
+title: TestRepo
+username: vrkdib-david-murphy
+account: vrkdib-david-murphy
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13635537
+bundleId: 9560772
+url: https://vrkdib-david-murphy.shinyapps.io/TestRepo/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
